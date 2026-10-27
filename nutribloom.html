@@ -1,0 +1,6015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=326f00a6-1535-4299-8fe8-78d4467447c8
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NutriBloom — Personal Meal Planner</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+    --primary: #3f8f63;
+    --primary-dark: #276342;
+    --primary-soft: #eaf6ee;
+    --accent: #79b88e;
+
+    --bg: #f5f8f5;
+    --card: #ffffff;
+    --text: #24352b;
+    --muted: #718077;
+    --border: #dfe9e2;
+
+    --shadow: 0 15px 40px rgba(39, 75, 53, .09);
+    --radius: 20px;
+
+    /*
+     * These are changed dynamically according to BMI.
+     *
+     * Healthy     = Green
+     * Underweight = Blue
+     * Overweight  = Reddish orange
+     * Obese       = Red
+     */
+    --theme-main: #3f8f63;
+    --theme-soft: #eaf6ee;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: "DM Sans", sans-serif;
+    color: var(--text);
+
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(126, 190, 143, .12),
+            transparent 25%
+        ),
+        var(--bg);
+
+    line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+    min-height: 390px;
+    padding: 70px 20px 85px;
+
+    position: relative;
+    overflow: hidden;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            115deg,
+            rgba(31, 76, 48, .86),
+            rgba(66, 127, 80, .70)
+        ),
+        url("https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1800&q=85")
+        center/cover;
+}
+
+.hero-inner {
+    max-width: 1150px;
+    margin: auto;
+
+    position: relative;
+    z-index: 2;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .3px;
+
+    margin-bottom: 45px;
+}
+
+.logo-mark {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 12px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(255,255,255,.18);
+
+    backdrop-filter: blur(10px);
+
+    font-size: 20px;
+}
+
+.hero h1 {
+    font-family: "Playfair Display", serif;
+
+    font-size: clamp(42px, 6vw, 72px);
+
+    line-height: 1.02;
+
+    max-width: 750px;
+
+    margin: 0 0 20px;
+}
+
+.hero p {
+    max-width: 650px;
+
+    font-size: 17px;
+
+    opacity: .95;
+}
+
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+
+.container {
+    width: min(1150px, calc(100% - 32px));
+
+    margin: -50px auto 70px;
+
+    position: relative;
+    z-index: 5;
+}
+
+.panel {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 32px;
+
+    box-shadow: var(--shadow);
+
+    margin-bottom: 24px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.section-heading {
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    font-family: "Playfair Display", serif;
+
+    font-size: 30px;
+
+    margin: 0 0 7px;
+}
+
+.section-heading p {
+    color: var(--muted);
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.field {
+    min-width: 0;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+label span {
+    font-weight: 400;
+
+    color: var(--muted);
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    border: 1px solid var(--border);
+
+    background: #f7faf8;
+
+    color: var(--text);
+
+    border-radius: 13px;
+
+    padding: 14px 15px;
+
+    outline: none;
+
+    transition: .2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--theme-main);
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px var(--theme-soft);
+}
+
+textarea {
+    min-height: 120px;
+
+    resize: vertical;
+}
+
+.radio-group {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+.radio-option {
+    position: relative;
+}
+
+.radio-option input {
+    position: absolute;
+
+    opacity: 0;
+}
+
+.radio-option label {
+    margin: 0;
+
+    border: 1px solid #d9e6dd;
+
+    background: #f7faf8;
+
+    border-radius: 13px;
+
+    padding: 14px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 51px;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.radio-option input:checked + label {
+    border-color: var(--theme-main);
+
+    background: var(--theme-soft);
+
+    color: var(--theme-main);
+
+    font-weight: 700;
+}
+
+.notes-helper {
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: var(--muted);
+}
+
+.ai-status {
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: var(--muted);
+
+    min-height: 18px;
+}
+
+.ai-status.loading {
+    color: var(--theme-main);
+
+    font-weight: 700;
+}
+
+.ai-status.success {
+    color: #3f8f63;
+
+    font-weight: 600;
+}
+
+.ai-status.fallback {
+    color: #a36c25;
+}
+
+.generate-wrap {
+    margin-top: 28px;
+
+    display: flex;
+
+    justify-content: center;
+}
+
+.primary-btn {
+    border: 0;
+
+    border-radius: 15px;
+
+    padding: 15px 28px;
+
+    color: white;
+
+    font-weight: 700;
+
+    background: var(--theme-main);
+
+    box-shadow:
+        0 10px 25px rgba(39, 99, 66, .18);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 15px 30px rgba(39, 99, 66, .25);
+}
+
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+
+.profile-header {
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+
+    gap: 20px;
+
+    align-items: center;
+}
+
+.welcome {
+    font-family: "Playfair Display", serif;
+
+    font-size: clamp(28px, 4vw, 42px);
+
+    margin: 0 0 8px;
+}
+
+.welcome-text {
+    color: var(--muted);
+
+    margin: 0;
+}
+
+.bmi-box {
+    min-width: 190px;
+
+    padding: 18px 20px;
+
+    border-radius: 18px;
+
+    background: var(--theme-soft);
+
+    border:
+        1px solid var(--theme-main);
+
+    text-align: center;
+}
+
+.bmi-number {
+    font-size: 34px;
+
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+.bmi-label {
+    margin-top: 6px;
+
+    color: var(--theme-main);
+
+    font-size: 13px;
+
+    font-weight: 800;
+}
+
+.body-message {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    background: var(--theme-soft);
+
+    border-left:
+        4px solid var(--theme-main);
+
+    border-radius: 13px;
+
+    color: #425048;
+}
+
+.body-message strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--theme-main);
+}
+
+
+/* ============================================================
+   NOTES ANALYSIS
+   ============================================================ */
+
+.notes-analysis {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    background: #f7faf8;
+
+    border: 1px solid var(--border);
+}
+
+.notes-analysis h3 {
+    margin: 0 0 12px;
+
+    font-size: 15px;
+}
+
+.analysis-tags {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.analysis-tag {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    background: var(--theme-soft);
+
+    color: var(--theme-main);
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   HOW TO
+   ============================================================ */
+
+.how-to {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 25px;
+}
+
+.how-item {
+    display: grid;
+
+    grid-template-columns: auto 1fr;
+
+    column-gap: 10px;
+
+    align-items: center;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    background: #f7faf8;
+
+    border: 1px solid var(--border);
+}
+
+.how-number {
+    grid-row: span 2;
+
+    width: 30px;
+    height: 30px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: var(--theme-main);
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.how-item strong {
+    font-size: 13px;
+}
+
+.how-item span {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.table-scroll {
+    overflow-x: auto;
+
+    padding-bottom: 10px;
+}
+
+.meal-table {
+    width: 100%;
+
+    min-width: 1000px;
+
+    border-collapse: separate;
+
+    border-spacing: 9px;
+}
+
+.meal-table th {
+    color: var(--muted);
+
+    font-size: 12px;
+
+    text-align: left;
+
+    padding: 5px;
+}
+
+.day-cell {
+    min-width: 90px;
+
+    font-weight: 800;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+
+    padding: 8px;
+}
+
+.meal-cell {
+    width: 170px;
+
+    height: 175px;
+
+    perspective: 1000px;
+
+    cursor: pointer;
+}
+
+.meal-card {
+    position: relative;
+
+    width: 100%;
+
+    height: 100%;
+
+    transform-style: preserve-3d;
+
+    transition:
+        transform .65s ease;
+
+    border-radius: 17px;
+}
+
+.meal-cell.flipped .meal-card {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+
+    inset: 0;
+
+    backface-visibility: hidden;
+
+    border-radius: 17px;
+
+    border: 1px solid var(--border);
+
+    overflow: hidden;
+}
+
+.card-front {
+    padding: 15px;
+
+    background: white;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    box-shadow:
+        0 6px 18px rgba(30,60,40,.06);
+}
+
+.card-front::before {
+    content: "";
+
+    display: block;
+
+    height: 4px;
+
+    width: 40px;
+
+    background: var(--theme-main);
+
+    border-radius: 100px;
+}
+
+.meal-type {
+    font-size: 10px;
+
+    color: var(--muted);
+
+    text-transform: uppercase;
+
+    letter-spacing: .7px;
+
+    margin-bottom: 6px;
+}
+
+.meal-name {
+    font-weight: 700;
+
+    line-height: 1.25;
+
+    font-size: 14px;
+}
+
+.meal-description {
+    font-size: 11px;
+
+    color: var(--muted);
+
+    line-height: 1.35;
+
+    margin-top: 5px;
+}
+
+.flip-hint {
+    font-size: 10px;
+
+    color: var(--theme-main);
+
+    font-weight: 700;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+
+    padding: 15px;
+
+    background: var(--theme-soft);
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+}
+
+.portion-title {
+    font-weight: 800;
+
+    font-size: 13px;
+
+    margin-bottom: 5px;
+}
+
+.portion-line {
+    font-size: 11px;
+
+    color: #53635a;
+}
+
+.calories {
+    font-weight: 800;
+
+    color: var(--theme-main);
+
+    font-size: 14px;
+
+    margin-top: 5px;
+}
+
+.recipe-link {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--theme-main);
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    padding: 0;
+
+    text-align: left;
+
+    text-decoration: underline;
+}
+
+.recipe-link:hover {
+    opacity: .7;
+}
+
+
+/* ============================================================
+   RECIPE MODAL
+   ============================================================ */
+
+.recipe-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(20,35,26,.62);
+
+    backdrop-filter: blur(5px);
+}
+
+.recipe-overlay.show {
+    display: flex;
+}
+
+.recipe-modal {
+    width: min(680px, 100%);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 28px;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.22);
+
+    animation: modalIn .3s ease;
+}
+
+@keyframes modalIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.recipe-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    align-items: flex-start;
+
+    margin-bottom: 20px;
+}
+
+.recipe-header h2 {
+    font-family: "Playfair Display", serif;
+
+    margin: 0 0 5px;
+}
+
+.close-btn {
+    width: 35px;
+    height: 35px;
+
+    border-radius: 50%;
+
+    border: 1px solid var(--border);
+
+    background: white;
+
+    font-size: 20px;
+}
+
+.recipe-section {
+    margin-top: 20px;
+}
+
+.recipe-section h3 {
+    font-size: 14px;
+
+    margin-bottom: 10px;
+}
+
+.ingredients {
+    display: grid;
+
+    gap: 7px;
+}
+
+.ingredient {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 8px 10px;
+
+    background: #f7faf8;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+}
+
+.steps {
+    margin: 0;
+
+    padding-left: 20px;
+}
+
+.steps li {
+    margin-bottom: 7px;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   PERSONAL RECOMMENDATIONS
+   ============================================================ */
+
+.recommendations {
+    display: grid;
+
+    gap: 12px;
+}
+
+.recommendation {
+    padding: 17px 18px;
+
+    border-radius: 15px;
+
+    background: #f7faf8;
+
+    border-left:
+        4px solid var(--theme-main);
+}
+
+.recommendation strong {
+    display: block;
+
+    margin-bottom: 5px;
+}
+
+.recommendation p {
+    margin: 0;
+
+    color: #53635a;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.disclaimer {
+    font-size: 11px;
+
+    color: var(--muted);
+
+    text-align: center;
+
+    max-width: 800px;
+
+    margin: 30px auto 0;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .hero {
+        min-height: 330px;
+
+        padding-top: 45px;
+    }
+
+    .container {
+        margin-top: -35px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full {
+        grid-column: auto;
+    }
+
+    .profile-header {
+        grid-template-columns: 1fr;
+    }
+
+    .bmi-box {
+        width: 100%;
+    }
+
+    .how-to {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .panel {
+        padding: 20px 16px;
+
+        border-radius: 20px;
+    }
+
+    .hero h1 {
+        font-size: 43px;
+    }
+
+    .hero p {
+        font-size: 15px;
+    }
+
+    .radio-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header class="hero">
+
+    <div class="hero-inner">
+
+        <div class="logo">
+
+            <div class="logo-mark">
+                ✦
+            </div>
+
+            NutriBloom
+
+        </div>
+
+
+        <h1>
+            Food that fits<br>
+            your actual life.
+        </h1>
+
+
+        <p>
+            A practical weekly meal planner that uses your BMI,
+            food culture and personal notes to build a more relevant plan.
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- ==========================================================
+     FORM
+=========================================================== -->
+
+<section class="panel" id="formPanel">
+
+    <div class="section-heading">
+
+        <h2>
+            Build your plan
+        </h2>
+
+        <p>
+            Enter the details below. Your optional notes can significantly change the result.
+        </p>
+
+    </div>
+
+
+    <form id="plannerForm">
+
+        <div class="form-grid">
+
+
+            <div class="field">
+
+                <label for="name">
+                    Name
+                </label>
+
+                <input
+                    id="name"
+                    required
+                    placeholder="e.g. Pooja"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="age">
+                    Age
+                </label>
+
+                <input
+                    id="age"
+                    type="number"
+                    min="18"
+                    max="100"
+                    required
+                    placeholder="e.g. 25"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="height">
+                    Height <span>(cm)</span>
+                </label>
+
+                <input
+                    id="height"
+                    type="number"
+                    min="100"
+                    max="230"
+                    required
+                    placeholder="e.g. 153"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="weight">
+                    Weight <span>(kg)</span>
+                </label>
+
+                <input
+                    id="weight"
+                    type="number"
+                    min="30"
+                    max="250"
+                    step="0.1"
+                    required
+                    placeholder="e.g. 52"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="nationality">
+                    Nationality / food culture
+                </label>
+
+                <input
+                    id="nationality"
+                    required
+                    placeholder="e.g. Indian, Italian, Japanese"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Diet preference
+                </label>
+
+
+                <div class="radio-group">
+
+
+                    <div class="radio-option">
+
+                        <input
+                            type="radio"
+                            id="veg"
+                            name="diet"
+                            value="vegetarian"
+                            checked
+                        >
+
+                        <label for="veg">
+                            🌱 Vegetarian
+                        </label>
+
+                    </div>
+
+
+                    <div class="radio-option">
+
+                        <input
+                            type="radio"
+                            id="nonveg"
+                            name="diet"
+                            value="nonvegetarian"
+                        >
+
+                        <label for="nonveg">
+                            🍗 Includes meat
+                        </label>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <div class="field full">
+
+                <label for="notes">
+
+                    Anything else we should know?
+
+                    <span>
+                        (optional)
+                    </span>
+
+                </label>
+
+
+                <textarea
+                    id="notes"
+                    placeholder="Examples: allergic to peanuts, dislike mushrooms, struggle to drink water, want more protein, have little time to cook, love spicy food, dry skin, don't eat fish, trying to reduce takeaways..."
+                ></textarea>
+
+
+                <div class="notes-helper">
+
+                    Be specific. This section has a real effect on the meals and recommendations.
+
+                </div>
+
+
+                <div
+                    id="aiStatus"
+                    class="ai-status"
+                    aria-live="polite"
+                ></div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="generate-wrap">
+
+            <button
+                class="primary-btn"
+                type="submit"
+                id="generateButton"
+            >
+                Generate my 7-day plan →
+            </button>
+
+        </div>
+
+
+    </form>
+
+</section>
+
+
+<!-- ==========================================================
+     RESULTS
+=========================================================== -->
+
+<section
+    class="panel hidden"
+    id="results"
+>
+
+    <div class="profile-header">
+
+
+        <div>
+
+            <h2
+                class="welcome"
+                id="welcome"
+            ></h2>
+
+            <p
+                class="welcome-text"
+                id="introText"
+            ></p>
+
+        </div>
+
+
+        <div class="bmi-box">
+
+            <div
+                class="bmi-number"
+                id="bmiNumber"
+            >
+                --
+            </div>
+
+            <div
+                class="bmi-label"
+                id="bmiLabel"
+            >
+                --
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div
+        class="body-message"
+        id="bodyMessage"
+    ></div>
+
+
+    <div class="notes-analysis">
+
+        <h3>
+            What your notes changed
+        </h3>
+
+        <div
+            class="analysis-tags"
+            id="analysisTags"
+        ></div>
+
+    </div>
+
+
+    <div class="how-to">
+
+
+        <div class="how-item">
+
+            <div class="how-number">
+                1
+            </div>
+
+            <strong>
+                Choose a meal
+            </strong>
+
+            <span>
+                Each meal is a card inside the timetable.
+            </span>
+
+        </div>
+
+
+        <div class="how-item">
+
+            <div class="how-number">
+                2
+            </div>
+
+            <strong>
+                Flip the card
+            </strong>
+
+            <span>
+                Click it to see calories and the suggested portion.
+            </span>
+
+        </div>
+
+
+        <div class="how-item">
+
+            <div class="how-number">
+                3
+            </div>
+
+            <strong>
+                Open the recipe
+            </strong>
+
+            <span>
+                Use the recipe link for ingredients and cooking instructions.
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+<!-- ==========================================================
+     TIMETABLE
+=========================================================== -->
+
+<section
+    class="panel hidden"
+    id="tablePanel"
+>
+
+    <div class="section-heading">
+
+        <h2>
+            Your 7-day timetable
+        </h2>
+
+        <p>
+            Portions are estimates rather than medical prescriptions.
+            Click any meal card to turn it over.
+        </p>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="meal-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Day
+                    </th>
+
+                    <th>
+                        Breakfast
+                    </th>
+
+                    <th>
+                        Morning snack
+                    </th>
+
+                    <th>
+                        Lunch
+                    </th>
+
+                    <th>
+                        Afternoon snack
+                    </th>
+
+                    <th>
+                        Dinner
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody
+                id="mealTableBody"
+            ></tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================================
+     RECOMMENDATIONS
+=========================================================== -->
+
+<section
+    class="panel hidden"
+    id="recommendationPanel"
+>
+
+    <div class="section-heading">
+
+        <h2>
+            A few things worth acting on
+        </h2>
+
+        <p>
+            These recommendations are based specifically on the information you entered.
+        </p>
+
+    </div>
+
+
+    <div
+        class="recommendations"
+        id="recommendations"
+    ></div>
+
+
+    <p class="disclaimer">
+
+        BMI is a screening measurement, not a diagnosis, and it does not account for
+        muscle mass, body composition or every individual health circumstance.
+        Calorie and portion figures are approximate. If you have a medical condition,
+        food allergy or significant dietary restriction, use professional dietary advice
+        alongside this plan.
+
+    </p>
+
+</section>
+
+
+</main>
+
+
+<!-- ==========================================================
+     RECIPE MODAL
+=========================================================== -->
+
+<div
+    class="recipe-overlay"
+    id="recipeOverlay"
+>
+
+    <div class="recipe-modal">
+
+
+        <div class="recipe-header">
+
+            <div>
+
+                <h2 id="recipeTitle"></h2>
+
+                <div
+                    id="recipeSubtitle"
+                    style="
+                        color:var(--muted);
+                        font-size:13px;
+                    "
+                ></div>
+
+            </div>
+
+
+            <button
+                class="close-btn"
+                id="closeRecipe"
+                type="button"
+                aria-label="Close recipe"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="recipe-section">
+
+            <h3>
+                Ingredients & portions
+            </h3>
+
+            <div
+                class="ingredients"
+                id="ingredientsList"
+            ></div>
+
+        </div>
+
+
+        <div class="recipe-section">
+
+            <h3>
+                How to make it
+            </h3>
+
+            <ol
+                class="steps"
+                id="recipeSteps"
+            ></ol>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ============================================================
+   NUTRIBLOOM
+   Standalone client-side meal planner
+
+   CHANGES INCLUDED:
+   1. Healthy BMI = GREEN
+   2. Underweight BMI = BLUE
+   3. Overweight BMI = REDDISH ORANGE
+   4. Obese BMI = RED
+   5. Optional notes can be analysed by Gemini AI
+   6. AI analysis directly affects timetable selection
+   7. AI analysis directly affects recommendations
+   8. Local analyser remains as fallback
+   ============================================================ */
+
+
+/* ============================================================
+   AI CONFIGURATION
+   ============================================================
+
+   For local testing only:
+
+   const GEMINI_API_KEY = "YOUR_API_KEY";
+
+   IMPORTANT:
+   A real API key should NOT be exposed in a public HTML file.
+   For a public deployment, put the Gemini request behind
+   a server/backend.
+
+   If this is left empty, the built-in notes analyser will still
+   work and the rest of the application remains functional.
+   ============================================================ */
+
+const GEMINI_API_KEY = "";
+
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+
+/* ============================================================
+   APPLICATION STATE
+   ============================================================ */
+
+const state = {
+
+    user: {},
+
+    analysis: {},
+
+    meals: []
+
+};
+
+
+/* ============================================================
+   FOOD DATABASE
+   ============================================================ */
+
+const foodProfiles = {
+
+
+    /* ========================================================
+       INDIAN
+    ======================================================== */
+
+    indian: {
+
+        keywords: [
+            "india",
+            "indian",
+            "south indian",
+            "north indian"
+        ],
+
+        breakfasts: [
+
+            [
+                "Vegetable poha",
+                "Flattened rice with vegetables and lemon",
+                320,
+                "1 medium bowl (250g)"
+            ],
+
+            [
+                "Masala oats",
+                "Oats cooked with peas, carrot and spices",
+                330,
+                "1 large bowl (300g)"
+            ],
+
+            [
+                "Moong dal chilla",
+                "Savoury lentil pancakes with vegetables",
+                350,
+                "2 medium chillas (220g)"
+            ],
+
+            [
+                "Idli & sambar",
+                "Steamed rice-lentil cakes with vegetable sambar",
+                360,
+                "3 idlis + 180ml sambar"
+            ],
+
+            [
+                "Vegetable upma",
+                "Semolina cooked with vegetables and spices",
+                340,
+                "1 medium bowl (280g)"
+            ],
+
+            [
+                "Besan chilla",
+                "Chickpea-flour pancakes with vegetables",
+                360,
+                "2 medium chillas (220g)"
+            ],
+
+            [
+                "Curd & fruit bowl",
+                "Plain yoghurt with fruit and seeds",
+                300,
+                "250g yoghurt + 120g fruit"
+            ]
+
+        ],
+
+
+        lunches: [
+
+            [
+                "Rajma rice bowl",
+                "Kidney beans, rice and cucumber salad",
+                560,
+                "120g cooked rice + 180g rajma + 100g salad"
+            ],
+
+            [
+                "Dal, roti & sabzi",
+                "Lentils with whole-wheat roti and vegetables",
+                530,
+                "2 rotis + 180g dal + 150g sabzi"
+            ],
+
+            [
+                "Chickpea pulao",
+                "Chickpeas and vegetables with basmati rice",
+                540,
+                "300g cooked pulao + 100g yoghurt"
+            ],
+
+            [
+                "Paneer tikka bowl",
+                "Paneer, vegetables and a small rice portion",
+                550,
+                "100g paneer + 120g rice + 180g vegetables"
+            ],
+
+            [
+                "Vegetable khichdi",
+                "Rice and lentils cooked together with vegetables",
+                500,
+                "350g khichdi + 100g yoghurt"
+            ],
+
+            [
+                "Chicken curry rice",
+                "Light chicken curry with basmati rice",
+                570,
+                "140g chicken + 130g cooked rice + 150g vegetables"
+            ],
+
+            [
+                "Egg curry & roti",
+                "Egg curry with whole-wheat roti",
+                540,
+                "2 eggs + 2 rotis + 150g vegetables"
+            ]
+
+        ],
+
+
+        dinners: [
+
+            [
+                "Dal & vegetable roti plate",
+                "Lentils, vegetables and whole-wheat roti",
+                470,
+                "1 roti + 200g dal + 180g vegetables"
+            ],
+
+            [
+                "Paneer vegetable stir-fry",
+                "Paneer with peppers, onion and greens",
+                460,
+                "100g paneer + 250g vegetables"
+            ],
+
+            [
+                "Moong dal khichdi",
+                "Comforting rice-lentil meal with vegetables",
+                450,
+                "320g khichdi + 100g yoghurt"
+            ],
+
+            [
+                "Vegetable dosa & sambar",
+                "Crisp dosa with vegetable sambar",
+                480,
+                "1 large dosa + 220ml sambar"
+            ],
+
+            [
+                "Chicken tikka plate",
+                "Chicken tikka with roasted vegetables",
+                490,
+                "150g chicken + 250g vegetables"
+            ],
+
+            [
+                "Egg bhurji & roti",
+                "Spiced scrambled eggs with vegetables",
+                460,
+                "2 eggs + 2 small rotis + 150g vegetables"
+            ],
+
+            [
+                "Tofu masala bowl",
+                "Tofu with vegetables and a small grain portion",
+                450,
+                "150g tofu + 200g vegetables + 100g rice"
+            ]
+
+        ],
+
+
+        snacks: [
+
+            [
+                "Apple & almonds",
+                "Fruit with a small handful of almonds",
+                170,
+                "1 apple + 15g almonds"
+            ],
+
+            [
+                "Roasted chana",
+                "Crunchy roasted chickpeas",
+                160,
+                "35g"
+            ],
+
+            [
+                "Greek yoghurt & berries",
+                "Plain yoghurt with berries",
+                150,
+                "170g yoghurt + 70g berries"
+            ],
+
+            [
+                "Banana & peanut butter",
+                "Banana with a measured nut-butter portion",
+                190,
+                "1 small banana + 10g peanut butter"
+            ],
+
+            [
+                "Cucumber chaat",
+                "Cucumber, tomato, lemon and spices",
+                90,
+                "250g"
+            ],
+
+            [
+                "Makhana",
+                "Dry-roasted fox nuts with light seasoning",
+                140,
+                "25g"
+            ],
+
+            [
+                "Fruit & pumpkin seeds",
+                "Seasonal fruit with seeds",
+                160,
+                "150g fruit + 15g seeds"
+            ]
+
+        ]
+
+    },
+
+
+    /* ========================================================
+       ITALIAN
+    ======================================================== */
+
+    italian: {
+
+        keywords: [
+            "italy",
+            "italian"
+        ],
+
+        breakfasts: [
+
+            [
+                "Greek yoghurt & berries",
+                "Yoghurt, berries and oats",
+                310,
+                "220g yoghurt + 100g berries + 25g oats"
+            ],
+
+            [
+                "Wholegrain toast & egg",
+                "Toast with egg and tomato",
+                330,
+                "2 slices + 1 egg + 100g tomato"
+            ],
+
+            [
+                "Oat porridge",
+                "Oats with milk and banana",
+                340,
+                "60g oats + 200ml milk + 80g banana"
+            ],
+
+            [
+                "Ricotta toast",
+                "Wholegrain toast with ricotta and fruit",
+                350,
+                "2 slices + 60g ricotta + 100g fruit"
+            ]
+
+        ],
+
+        lunches: [
+
+            [
+                "Lentil tomato pasta",
+                "Wholegrain pasta with lentils and tomato",
+                520,
+                "70g dry pasta + 150g lentils + 150g tomato"
+            ],
+
+            [
+                "Chicken pasta",
+                "Chicken with wholegrain pasta and vegetables",
+                550,
+                "120g chicken + 70g dry pasta + 180g vegetables"
+            ],
+
+            [
+                "White bean salad",
+                "White beans, tomatoes and greens",
+                470,
+                "170g beans + 250g vegetables + 5g olive oil"
+            ],
+
+            [
+                "Vegetable risotto",
+                "Rice cooked with vegetables and herbs",
+                500,
+                "300g cooked risotto + 150g vegetables"
+            ]
+
+        ],
+
+        dinners: [
+
+            [
+                "Minestrone soup",
+                "Vegetable and bean soup",
+                420,
+                "350ml soup + 1 slice wholegrain bread"
+            ],
+
+            [
+                "Chicken & vegetables",
+                "Chicken with roasted Mediterranean vegetables",
+                480,
+                "150g chicken + 300g vegetables"
+            ],
+
+            [
+                "Lentil vegetable bowl",
+                "Lentils with roasted vegetables",
+                450,
+                "200g lentils + 250g vegetables"
+            ],
+
+            [
+                "Caprese grain bowl",
+                "Tomato, mozzarella, greens and grain",
+                460,
+                "80g mozzarella + 120g grain + 200g vegetables"
+            ]
+
+        ],
+
+        snacks: [
+
+            [
+                "Apple & almonds",
+                "Apple with measured almonds",
+                170,
+                "1 apple + 15g almonds"
+            ],
+
+            [
+                "Yoghurt & berries",
+                "Plain yoghurt and berries",
+                150,
+                "170g yoghurt + 70g berries"
+            ],
+
+            [
+                "Fruit & seeds",
+                "Seasonal fruit and seeds",
+                160,
+                "150g fruit + 15g seeds"
+            ],
+
+            [
+                "Carrot & hummus",
+                "Vegetables with hummus",
+                140,
+                "180g vegetables + 40g hummus"
+            ]
+
+        ]
+
+    },
+
+
+    /* ========================================================
+       JAPANESE
+    ======================================================== */
+
+    japanese: {
+
+        keywords: [
+            "japan",
+            "japanese"
+        ],
+
+        breakfasts: [
+
+            [
+                "Miso tofu breakfast bowl",
+                "Tofu, rice and vegetables with miso",
+                360,
+                "120g tofu + 100g cooked rice + 150g vegetables"
+            ],
+
+            [
+                "Rice, egg & greens",
+                "Rice with egg and steamed greens",
+                350,
+                "120g rice + 1 egg + 150g greens"
+            ],
+
+            [
+                "Yoghurt fruit bowl",
+                "Plain yoghurt with seasonal fruit",
+                310,
+                "220g yoghurt + 120g fruit"
+            ],
+
+            [
+                "Oat banana bowl",
+                "Oats with banana and seeds",
+                340,
+                "60g oats + 100g banana + 10g seeds"
+            ]
+
+        ],
+
+        lunches: [
+
+            [
+                "Tofu rice bowl",
+                "Tofu, vegetables and rice",
+                470,
+                "150g tofu + 110g rice + 220g vegetables"
+            ],
+
+            [
+                "Salmon & greens",
+                "Salmon with rice and steamed greens",
+                500,
+                "130g salmon + 100g rice + 220g greens"
+            ],
+
+            [
+                "Vegetable soba",
+                "Buckwheat noodles with vegetables",
+                440,
+                "75g dry soba + 250g vegetables"
+            ],
+
+            [
+                "Chicken miso bowl",
+                "Chicken, vegetables and rice",
+                490,
+                "140g chicken + 110g rice + 220g vegetables"
+            ]
+
+        ],
+
+        dinners: [
+
+            [
+                "Tofu vegetable bowl",
+                "Tofu with vegetables and rice",
+                450,
+                "150g tofu + 250g vegetables + 90g rice"
+            ],
+
+            [
+                "Salmon rice plate",
+                "Salmon, rice and greens",
+                480,
+                "130g salmon + 100g rice + 220g greens"
+            ],
+
+            [
+                "Chicken vegetable bowl",
+                "Chicken with vegetables and rice",
+                470,
+                "140g chicken + 100g rice + 250g vegetables"
+            ],
+
+            [
+                "Miso vegetable noodle bowl",
+                "Soba noodles with vegetables and miso",
+                440,
+                "70g dry soba + 250g vegetables"
+            ]
+
+        ],
+
+        snacks: [
+
+            [
+                "Edamame",
+                "Lightly salted steamed edamame",
+                150,
+                "120g"
+            ],
+
+            [
+                "Mandarin & almonds",
+                "Mandarin with almonds",
+                160,
+                "2 mandarins + 15g almonds"
+            ],
+
+            [
+                "Yoghurt & fruit",
+                "Plain yoghurt with seasonal fruit",
+                150,
+                "170g yoghurt + 100g fruit"
+            ],
+
+            [
+                "Rice cake & avocado",
+                "Rice cake with avocado",
+                150,
+                "2 rice cakes + 45g avocado"
+            ]
+
+        ]
+
+    },
+
+
+    /* ========================================================
+       MEXICAN
+    ======================================================== */
+
+    mexican: {
+
+        keywords: [
+            "mexico",
+            "mexican"
+        ],
+
+        breakfasts: [
+
+            [
+                "Bean & egg tacos",
+                "Egg, beans and vegetables in corn tortillas",
+                360,
+                "2 tacos + 1 egg + 80g beans"
+            ],
+
+            [
+                "Avocado egg toast",
+                "Wholegrain toast with egg and avocado",
+                350,
+                "2 slices + 1 egg + 50g avocado"
+            ],
+
+            [
+                "Yoghurt fruit bowl",
+                "Yoghurt with fruit and seeds",
+                320,
+                "220g yoghurt + 120g fruit + 15g seeds"
+            ]
+
+        ],
+
+        lunches: [
+
+            [
+                "Chicken burrito bowl",
+                "Chicken, beans, rice and salsa",
+                560,
+                "130g chicken + 100g rice + 100g beans + vegetables"
+            ],
+
+            [
+                "Bean tacos",
+                "Beans, vegetables and avocado in corn tortillas",
+                500,
+                "3 tortillas + 150g beans + 100g vegetables"
+            ],
+
+            [
+                "Chicken fajita bowl",
+                "Chicken, peppers, rice and beans",
+                570,
+                "140g chicken + 110g rice + 100g beans + vegetables"
+            ],
+
+            [
+                "Lentil tortilla bowl",
+                "Lentils, corn, tomato and greens",
+                490,
+                "180g lentils + 2 tortillas + 180g vegetables"
+            ]
+
+        ],
+
+        dinners: [
+
+            [
+                "Black bean tacos",
+                "Black beans, vegetables and salsa",
+                450,
+                "3 small tortillas + 150g beans + 180g vegetables"
+            ],
+
+            [
+                "Chicken fajitas",
+                "Chicken with peppers and tortillas",
+                500,
+                "140g chicken + 3 small tortillas + 200g vegetables"
+            ],
+
+            [
+                "Lentil chilli",
+                "Lentils, tomato and vegetables",
+                460,
+                "350g chilli"
+            ],
+
+            [
+                "Bean rice bowl",
+                "Beans, rice, vegetables and salsa",
+                470,
+                "150g beans + 100g rice + 200g vegetables"
+            ]
+
+        ],
+
+        snacks: [
+
+            [
+                "Guacamole & vegetables",
+                "Avocado dip with crunchy vegetables",
+                160,
+                "50g guacamole + 200g vegetables"
+            ],
+
+            [
+                "Apple & pumpkin seeds",
+                "Apple with pumpkin seeds",
+                160,
+                "1 apple + 15g seeds"
+            ],
+
+            [
+                "Greek yoghurt",
+                "Plain yoghurt with cinnamon",
+                130,
+                "170g"
+            ],
+
+            [
+                "Corn & bean cup",
+                "Small seasoned corn and bean snack",
+                170,
+                "150g"
+            ]
+
+        ]
+
+    },
+
+
+    /* ========================================================
+       GENERIC
+    ======================================================== */
+
+    generic: {
+
+        keywords: [],
+
+        breakfasts: [
+
+            [
+                "Overnight oats",
+                "Oats, yoghurt, fruit and seeds",
+                330,
+                "60g oats + 180g yoghurt + 100g fruit"
+            ],
+
+            [
+                "Egg & wholegrain toast",
+                "Egg with wholegrain toast and vegetables",
+                340,
+                "2 slices + 2 eggs + 100g vegetables"
+            ],
+
+            [
+                "Fruit yoghurt bowl",
+                "Plain yoghurt, fruit and seeds",
+                310,
+                "220g yoghurt + 120g fruit + 15g seeds"
+            ],
+
+            [
+                "Vegetable omelette",
+                "Egg omelette with mixed vegetables",
+                340,
+                "2 eggs + 180g vegetables + 1 slice toast"
+            ]
+
+        ],
+
+        lunches: [
+
+            [
+                "Lentil grain bowl",
+                "Lentils, whole grain and mixed vegetables",
+                520,
+                "180g lentils + 120g cooked grain + 200g vegetables"
+            ],
+
+            [
+                "Chicken grain bowl",
+                "Chicken, whole grain and vegetables",
+                550,
+                "140g chicken + 120g grain + 200g vegetables"
+            ],
+
+            [
+                "Chickpea salad bowl",
+                "Chickpeas, vegetables and yoghurt dressing",
+                480,
+                "170g chickpeas + 250g vegetables"
+            ],
+
+            [
+                "Vegetable bean bowl",
+                "Beans, grain and mixed vegetables",
+                500,
+                "160g beans + 120g grain + 220g vegetables"
+            ]
+
+        ],
+
+        dinners: [
+
+            [
+                "Lentil vegetable bowl",
+                "Lentils with roasted vegetables",
+                450,
+                "200g lentils + 250g vegetables"
+            ],
+
+            [
+                "Chicken & vegetables",
+                "Lean chicken with roasted vegetables",
+                480,
+                "150g chicken + 300g vegetables"
+            ],
+
+            [
+                "Tofu vegetable bowl",
+                "Tofu with mixed vegetables and grain",
+                460,
+                "150g tofu + 250g vegetables + 90g grain"
+            ],
+
+            [
+                "Egg vegetable plate",
+                "Eggs with vegetables and wholegrain bread",
+                440,
+                "2 eggs + 250g vegetables + 1 slice bread"
+            ]
+
+        ],
+
+        snacks: [
+
+            [
+                "Apple & nuts",
+                "Fruit with a measured nut portion",
+                170,
+                "1 apple + 15g nuts"
+            ],
+
+            [
+                "Yoghurt & berries",
+                "Plain yoghurt and berries",
+                150,
+                "170g yoghurt + 70g berries"
+            ],
+
+            [
+                "Carrot & hummus",
+                "Crunchy vegetables with hummus",
+                140,
+                "180g vegetables + 40g hummus"
+            ],
+
+            [
+                "Banana & seeds",
+                "Banana with pumpkin seeds",
+                170,
+                "1 small banana + 15g seeds"
+            ]
+
+        ]
+
+    }
+
+};
+
+
+/* ============================================================
+   LOCAL NOTES ANALYSER
+   ============================================================ */
+
+function createEmptyAnalysis() {
+
+    return {
+
+        allergies: [],
+
+        avoid: [],
+
+        preferences: [],
+
+        conditions: [],
+
+        goals: [],
+
+        strengths: [],
+
+        weaknesses: [],
+
+        tags: []
+
+    };
+
+}
+
+
+function analyseNotes(text) {
+
+    const t = text.toLowerCase();
+
+    const analysis = createEmptyAnalysis();
+
+
+    const keywordGroups = {
+
+
+        peanut: {
+
+            terms: [
+                "peanut",
+                "peanuts",
+                "groundnut"
+            ],
+
+            type: "allergies",
+
+            value: "peanuts"
+
+        },
+
+
+        nuts: {
+
+            terms: [
+                "nut allergy",
+                "tree nut",
+                "nuts"
+            ],
+
+            type: "allergies",
+
+            value: "nuts"
+
+        },
+
+
+        dairy: {
+
+            terms: [
+                "lactose",
+                "dairy allergy",
+                "milk allergy",
+                "can't have dairy",
+                "cannot have dairy"
+            ],
+
+            type: "allergies",
+
+            value: "dairy"
+
+        },
+
+
+        gluten: {
+
+            terms: [
+                "gluten",
+                "coeliac",
+                "celiac"
+            ],
+
+            type: "allergies",
+
+            value: "gluten"
+
+        },
+
+
+        egg: {
+
+            terms: [
+                "egg allergy",
+                "allergic to egg"
+            ],
+
+            type: "allergies",
+
+            value: "eggs"
+
+        },
+
+
+        fish: {
+
+            terms: [
+                "fish allergy",
+                "allergic to fish"
+            ],
+
+            type: "allergies",
+
+            value: "fish"
+
+        },
+
+
+        shellfish: {
+
+            terms: [
+                "shellfish",
+                "prawn allergy",
+                "shrimp allergy"
+            ],
+
+            type: "allergies",
+
+            value: "shellfish"
+
+        },
+
+
+        mushrooms: {
+
+            terms: [
+                "don't like mushroom",
+                "dont like mushroom",
+                "hate mushroom",
+                "avoid mushroom",
+                "no mushroom"
+            ],
+
+            type: "avoid",
+
+            value: "mushrooms"
+
+        },
+
+
+        spicy: {
+
+            terms: [
+                "love spicy",
+                "like spicy",
+                "spicy food"
+            ],
+
+            type: "preferences",
+
+            value: "spicy food"
+
+        },
+
+
+        sweet: {
+
+            terms: [
+                "sweet tooth",
+                "love sweets",
+                "like sweet"
+            ],
+
+            type: "preferences",
+
+            value: "sweet foods"
+
+        },
+
+
+        protein: {
+
+            terms: [
+                "more protein",
+                "high protein",
+                "protein"
+            ],
+
+            type: "goals",
+
+            value: "higher protein"
+
+        },
+
+
+        weightloss: {
+
+            terms: [
+                "lose weight",
+                "weight loss",
+                "fat loss",
+                "reduce weight"
+            ],
+
+            type: "goals",
+
+            value: "weight reduction"
+
+        },
+
+
+        strength: {
+
+            terms: [
+                "build strength",
+                "stronger",
+                "muscle",
+                "gym",
+                "lifting"
+            ],
+
+            type: "goals",
+
+            value: "strength support"
+
+        },
+
+
+        hydration: {
+
+            terms: [
+                "dehydrated",
+                "dehydration",
+                "don't drink water",
+                "dont drink water",
+                "forget water",
+                "low water"
+            ],
+
+            type: "conditions",
+
+            value: "hydration needs attention"
+
+        },
+
+
+        skin: {
+
+            terms: [
+                "dry skin",
+                "skin is dry",
+                "very dry skin"
+            ],
+
+            type: "conditions",
+
+            value: "dry skin mentioned"
+
+        },
+
+
+        breathing: {
+
+            terms: [
+                "breathing problem",
+                "breathing problems",
+                "breathless",
+                "shortness of breath",
+                "asthma"
+            ],
+
+            type: "conditions",
+
+            value: "breathing concern mentioned"
+
+        },
+
+
+        time: {
+
+            terms: [
+                "little time",
+                "no time",
+                "busy",
+                "quick meals",
+                "quick meal",
+                "can't cook",
+                "cannot cook"
+            ],
+
+            type: "weaknesses",
+
+            value: "limited cooking time"
+
+        },
+
+
+        budget: {
+
+            terms: [
+                "cheap",
+                "budget",
+                "save money",
+                "low budget",
+                "affordable"
+            ],
+
+            type: "preferences",
+
+            value: "budget-conscious meals"
+
+        },
+
+
+        takeaway: {
+
+            terms: [
+                "takeaway",
+                "takeaways",
+                "eating out",
+                "eat out",
+                "fast food"
+            ],
+
+            type: "weaknesses",
+
+            value: "frequent takeaway habit"
+
+        },
+
+
+        cooking: {
+
+            terms: [
+                "enjoy cooking",
+                "love cooking",
+                "like cooking"
+            ],
+
+            type: "strengths",
+
+            value: "comfortable cooking"
+
+        }
+
+    };
+
+
+    Object.values(keywordGroups).forEach(group => {
+
+        if (
+            group.terms.some(term =>
+                t.includes(term)
+            )
+        ) {
+
+            if (
+                !analysis[group.type].includes(
+                    group.value
+                )
+            ) {
+
+                analysis[group.type].push(
+                    group.value
+                );
+
+            }
+
+        }
+
+    });
+
+
+    /* Explicit foods the user wants to avoid */
+
+    const foods = [
+
+        "mushroom",
+        "fish",
+        "chicken",
+        "beef",
+        "pork",
+        "egg",
+        "cheese",
+        "milk",
+        "rice",
+        "bread",
+        "avocado",
+        "tofu",
+        "paneer",
+        "beans",
+        "lentils"
+
+    ];
+
+
+    foods.forEach(food => {
+
+        const explicit =
+
+            t.includes("don't eat " + food) ||
+
+            t.includes("dont eat " + food) ||
+
+            t.includes("avoid " + food) ||
+
+            t.includes("hate " + food) ||
+
+            t.includes("don't like " + food) ||
+
+            t.includes("dont like " + food);
+
+
+        if (
+            explicit &&
+            !analysis.avoid.includes(food)
+        ) {
+
+            analysis.avoid.push(food);
+
+        }
+
+    });
+
+
+    rebuildAnalysisTags(analysis);
+
+
+    return analysis;
+
+}
+
+
+/* ============================================================
+   TAG BUILDER
+   ============================================================ */
+
+function rebuildAnalysisTags(analysis) {
+
+    analysis.tags = [
+
+        ...analysis.allergies.map(
+            x => "🚫 " + x
+        ),
+
+        ...analysis.avoid.map(
+            x => "No " + x
+        ),
+
+        ...analysis.preferences,
+
+        ...analysis.goals,
+
+        ...analysis.conditions,
+
+        ...analysis.weaknesses,
+
+        ...analysis.strengths
+
+    ];
+
+}
+
+
+/* ============================================================
+   AI NOTES ANALYSER
+   ============================================================ */
+
+async function analyseNotesWithAI(text, user) {
+
+
+    /*
+     * No notes = no reason to call AI.
+     */
+
+    if (!text.trim()) {
+
+        return analyseNotes("");
+
+    }
+
+
+    /*
+     * No key = preserve the existing local analyser.
+     */
+
+    if (!GEMINI_API_KEY.trim()) {
+
+        return analyseNotes(text);
+
+    }
+
+
+    const prompt = `
+
+You are the personalisation engine for NutriBloom,
+a weekly meal-planning website.
+
+Analyse the user's OPTIONAL NOTE carefully.
+
+USER:
+Name: ${user.name}
+Age: ${user.age}
+Height: ${user.height} cm
+Weight: ${user.weight} kg
+BMI: ${user.bmi.toFixed(1)}
+BMI category: ${user.category}
+Nationality / food culture: ${user.nationality}
+Diet: ${user.diet}
+
+OPTIONAL NOTE:
+"${text}"
+
+Your job is to turn the note into structured information that
+the existing meal timetable can actually use.
+
+Return ONLY valid JSON using exactly this structure:
+
+{
+    "allergies": [],
+    "avoid": [],
+    "preferences": [],
+    "conditions": [],
+    "goals": [],
+    "strengths": [],
+    "weaknesses": [],
+    "tags": []
+}
+
+Rules:
+
+- Allergies must be treated as exclusions.
+- Strong dislikes should affect meal selection.
+- Food preferences should affect meal selection.
+- Lifestyle constraints should affect meal selection.
+- Cooking-time limitations should favour simpler meals.
+- Budget concerns should favour inexpensive common foods.
+- Higher-protein requests should affect meal selection.
+- Strength or muscle goals should affect meal selection.
+- Hydration concerns should be recorded as a condition.
+- Dry skin should be recorded as a condition if explicitly mentioned.
+- Breathing concerns should be recorded as a condition if explicitly mentioned.
+- Do not invent an allergy.
+- Do not invent a medical condition.
+- Do not diagnose the user.
+- Do not turn vague statements into medical diagnoses.
+- Do not give generic motivational advice.
+- Use the exact information contained in the note.
+- The tags should briefly describe what actually changed.
+
+The analysis must be useful enough to change the weekly timetable.
+`;
+
+
+    try {
+
+        const response = await fetch(
+
+            `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    "x-goog-api-key":
+                        GEMINI_API_KEY
+
+                },
+
+                body: JSON.stringify({
+
+                    contents: [
+
+                        {
+
+                            role: "user",
+
+                            parts: [
+
+                                {
+                                    text: prompt
+                                }
+
+                            ]
+
+                        }
+
+                    ],
+
+                    generationConfig: {
+
+                        temperature: 0.15,
+
+                        responseMimeType:
+                            "application/json"
+
+                    }
+
+                })
+
+            }
+
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Gemini request failed."
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        const raw =
+            result
+                ?.candidates?.[0]
+                ?.content?.parts?.[0]
+                ?.text;
+
+
+        if (!raw) {
+
+            throw new Error(
+                "Gemini returned no analysis."
+            );
+
+        }
+
+
+        const ai =
+            JSON.parse(raw);
+
+
+        const analysis =
+            createEmptyAnalysis();
+
+
+        const keys = [
+
+            "allergies",
+            "avoid",
+            "preferences",
+            "conditions",
+            "goals",
+            "strengths",
+            "weaknesses"
+
+        ];
+
+
+        keys.forEach(key => {
+
+            if (
+                Array.isArray(ai[key])
+            ) {
+
+                analysis[key] =
+                    ai[key]
+                    .filter(Boolean)
+                    .map(String);
+
+            }
+
+        });
+
+
+        /*
+         * Merge the local analyser as a safety net.
+         * This means a clear allergy such as "peanut allergy"
+         * won't disappear simply because the AI missed it.
+         */
+
+        const local =
+            analyseNotes(text);
+
+
+        keys.forEach(key => {
+
+            local[key].forEach(item => {
+
+                if (
+                    !analysis[key].includes(item)
+                ) {
+
+                    analysis[key].push(item);
+
+                }
+
+            });
+
+        });
+
+
+        rebuildAnalysisTags(analysis);
+
+
+        /*
+         * AI tags are useful when available.
+         */
+
+        if (
+            Array.isArray(ai.tags)
+        ) {
+
+            ai.tags
+                .filter(Boolean)
+                .map(String)
+                .forEach(tag => {
+
+                    if (
+                        !analysis.tags.includes(tag)
+                    ) {
+
+                        analysis.tags.push(tag);
+
+                    }
+
+                });
+
+        }
+
+
+        return analysis;
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "AI analysis failed. Falling back to local analysis.",
+            error
+        );
+
+
+        return analyseNotes(text);
+
+    }
+
+}
+
+
+/* ============================================================
+   BMI
+   ============================================================ */
+
+function calculateBMI(height, weight) {
+
+    const metres =
+        height / 100;
+
+    return weight /
+        (metres * metres);
+
+}
+
+
+function classifyBMI(bmi) {
+
+    if (bmi < 18.5) {
+
+        return "Underweight";
+
+    }
+
+    if (bmi < 25) {
+
+        return "Healthy range";
+
+    }
+
+    if (bmi < 30) {
+
+        return "Overweight";
+
+    }
+
+    return "Obese";
+
+}
+
+
+/* ============================================================
+   BMI THEME
+   ============================================================
+
+   HEALTHY      → GREEN
+   UNDERWEIGHT  → BLUE
+   OVERWEIGHT   → REDDISH ORANGE
+   OBESE        → RED
+   ============================================================ */
+
+function applyTheme(category) {
+
+    let main;
+    let soft;
+
+
+    if (
+        category === "Healthy range"
+    ) {
+
+        main = "#3f8f63";
+
+        soft = "#eaf6ee";
+
+    }
+
+    else if (
+        category === "Underweight"
+    ) {
+
+        main = "#4f7fb3";
+
+        soft = "#eaf2fb";
+
+    }
+
+    else if (
+        category === "Overweight"
+    ) {
+
+        main = "#d95f39";
+
+        soft = "#fff0eb";
+
+    }
+
+    else {
+
+        /*
+         * Obese
+         */
+
+        main = "#c9433b";
+
+        soft = "#fae9e7";
+
+    }
+
+
+    document.documentElement.style.setProperty(
+        "--theme-main",
+        main
+    );
+
+    document.documentElement.style.setProperty(
+        "--theme-soft",
+        soft
+    );
+
+}
+
+
+/* ============================================================
+   FOOD PROFILE
+   ============================================================ */
+
+function getFoodProfile(nationality) {
+
+    const n =
+        nationality.toLowerCase();
+
+
+    for (
+        const profile
+        of Object.values(foodProfiles)
+    ) {
+
+        if (
+
+            profile.keywords &&
+
+            profile.keywords.some(
+                keyword =>
+                    n.includes(keyword)
+            )
+
+        ) {
+
+            return profile;
+
+        }
+
+    }
+
+
+    return foodProfiles.generic;
+
+}
+
+
+/* ============================================================
+   MEAL FILTERING
+   ============================================================ */
+
+function mealContainsAvoidedFood(
+    meal,
+    analysis
+) {
+
+    const text =
+        meal.join(" ").toLowerCase();
+
+
+    const banned = [
+
+        ...analysis.allergies,
+
+        ...analysis.avoid
+
+    ];
+
+
+    const foodAliases = {
+
+        peanuts: [
+            "peanut",
+            "groundnut"
+        ],
+
+        nuts: [
+            "almond",
+            "walnut",
+            "nut",
+            "peanut"
+        ],
+
+        dairy: [
+            "yoghurt",
+            "yogurt",
+            "milk",
+            "cheese",
+            "paneer",
+            "ricotta"
+        ],
+
+        gluten: [
+            "bread",
+            "pasta",
+            "roti",
+            "oats",
+            "crackers"
+        ],
+
+        eggs: [
+            "egg"
+        ],
+
+        fish: [
+            "fish",
+            "salmon",
+            "tuna"
+        ],
+
+        shellfish: [
+            "prawn",
+            "shrimp",
+            "shellfish"
+        ],
+
+        mushrooms: [
+            "mushroom"
+        ],
+
+        chicken: [
+            "chicken"
+        ],
+
+        beef: [
+            "beef"
+        ],
+
+        pork: [
+            "pork"
+        ],
+
+        rice: [
+            "rice"
+        ],
+
+        bread: [
+            "bread",
+            "toast"
+        ],
+
+        avocado: [
+            "avocado"
+        ],
+
+        tofu: [
+            "tofu"
+        ],
+
+        paneer: [
+            "paneer"
+        ],
+
+        beans: [
+            "bean",
+            "beans"
+        ],
+
+        lentils: [
+            "lentil",
+            "dal"
+        ]
+
+    };
+
+
+    for (
+        const item of banned
+    ) {
+
+        const normalized =
+            item.toLowerCase();
+
+
+        const aliases =
+            foodAliases[normalized]
+            || [normalized];
+
+
+        if (
+            aliases.some(
+                alias =>
+                    text.includes(alias)
+            )
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    return false;
+
+}
+
+
+/* ============================================================
+   MEAL SELECTION
+   ============================================================ */
+
+function chooseMeals(
+    list,
+    analysis,
+    count
+) {
+
+
+    let candidates =
+        list.filter(
+            meal =>
+                !mealContainsAvoidedFood(
+                    meal,
+                    analysis
+                )
+        );
+
+
+    /*
+     * If all meals were removed by a restriction,
+     * keep the original list rather than producing
+     * an empty timetable.
+     */
+
+    if (!candidates.length) {
+
+        candidates = list;
+
+    }
+
+
+    /* Higher protein */
+
+    if (
+        analysis.goals.includes(
+            "higher protein"
+        )
+    ) {
+
+        const proteinMeals =
+            candidates.filter(
+                meal => {
+
+                    const text =
+                        meal[0].toLowerCase();
+
+
+                    return (
+
+                        text.includes("chicken") ||
+
+                        text.includes("egg") ||
+
+                        text.includes("salmon") ||
+
+                        text.includes("tuna") ||
+
+                        text.includes("tofu") ||
+
+                        text.includes("paneer") ||
+
+                        text.includes("lentil") ||
+
+                        text.includes("bean") ||
+
+                        text.includes("dal")
+
+                    );
+
+                }
+            );
+
+
+        if (
+            proteinMeals.length >= 2
+        ) {
+
+            candidates =
+                proteinMeals;
+
+        }
+
+    }
+
+
+    /* Strength support */
+
+    if (
+        analysis.goals.includes(
+            "strength support"
+        )
+    ) {
+
+        const strengthMeals =
+            candidates.filter(
+                meal => {
+
+                    const text =
+                        meal[0].toLowerCase();
+
+
+                    return (
+
+                        text.includes("chicken") ||
+
+                        text.includes("egg") ||
+
+                        text.includes("tofu") ||
+
+                        text.includes("paneer") ||
+
+                        text.includes("lentil") ||
+
+                        text.includes("bean") ||
+
+                        text.includes("dal") ||
+
+                        text.includes("salmon")
+
+                    );
+
+                }
+            );
+
+
+        if (
+            strengthMeals.length >= 2
+        ) {
+
+            candidates =
+                strengthMeals;
+
+        }
+
+    }
+
+
+    /* Limited cooking time */
+
+    if (
+        analysis.weaknesses.includes(
+            "limited cooking time"
+        )
+    ) {
+
+        const quickMeals =
+            candidates.filter(
+                meal => {
+
+                    const text =
+                        meal[0].toLowerCase();
+
+
+                    return !(
+                        text.includes("curry") ||
+                        text.includes("pulao") ||
+                        text.includes("frittata") ||
+                        text.includes("risotto")
+                    );
+
+                }
+            );
+
+
+        if (
+            quickMeals.length >= 2
+        ) {
+
+            candidates =
+                quickMeals;
+
+        }
+
+    }
+
+
+    /*
+     * Produce variety rather than showing exactly
+     * the same meal repeatedly.
+     */
+
+    const result = [];
+
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        result.push(
+            candidates[
+                i % candidates.length
+            ]
+        );
+
+    }
+
+
+    return result;
+
+}
+
+
+/* ============================================================
+   PORTION / CALORIE ADJUSTMENT
+   ============================================================ */
+
+function adjustedMeal(
+    meal,
+    category,
+    analysis
+) {
+
+    const copy = [
+        ...meal
+    ];
+
+
+    let calories =
+        Number(copy[2]);
+
+
+    /*
+     * These are deliberately modest adjustments.
+     * BMI alone should not be used for aggressive
+     * calorie restriction.
+     */
+
+    if (
+        category === "Overweight"
+    ) {
+
+        calories =
+            Math.round(
+                calories * .90
+            );
+
+    }
+
+
+    if (
+        category === "Obese"
+    ) {
+
+        calories =
+            Math.round(
+                calories * .85
+            );
+
+    }
+
+
+    if (
+        category === "Underweight"
+    ) {
+
+        calories =
+            Math.round(
+                calories * 1.10
+            );
+
+    }
+
+
+    copy[2] =
+        calories;
+
+
+    return copy;
+
+}
+
+
+/* ============================================================
+   WEEK GENERATOR
+   ============================================================ */
+
+function generateWeek(
+    profile,
+    category,
+    analysis,
+    diet
+) {
+
+
+    const breakfasts =
+        chooseMeals(
+            profile.breakfasts,
+            analysis,
+            7
+        );
+
+
+    const lunches =
+        chooseMeals(
+            profile.lunches,
+            analysis,
+            7
+        );
+
+
+    const dinners =
+        chooseMeals(
+            profile.dinners,
+            analysis,
+            7
+        );
+
+
+    const snacks =
+        chooseMeals(
+            profile.snacks,
+            analysis,
+            14
+        );
+
+
+    const days = [
+
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+
+    ];
+
+
+    const week = [];
+
+
+    days.forEach(
+        (day, i) => {
+
+
+            let breakfast =
+                breakfasts[i];
+
+
+            let lunch =
+                lunches[i];
+
+
+            let dinner =
+                dinners[i];
+
+
+            let snack1 =
+                snacks[i * 2];
+
+
+            let snack2 =
+                snacks[
+                    i * 2 + 1
+                ];
+
+
+            /*
+             * Vegetarian mode.
+             */
+
+            if (
+                diet === "vegetarian"
+            ) {
+
+                const vegetarianWords = [
+
+                    "chicken",
+                    "fish",
+                    "salmon",
+                    "tuna",
+                    "beef",
+                    "pork",
+                    "meat"
+
+                ];
+
+
+                const findVegetarianReplacement =
+                    (
+                        meal,
+                        source
+                    ) => {
+
+
+                        const text =
+                            meal[0]
+                            .toLowerCase();
+
+
+                        if (
+                            vegetarianWords.some(
+                                word =>
+                                    text.includes(word)
+                            )
+                        ) {
+
+
+                            const alternatives =
+                                source.filter(
+                                    item => {
+
+                                        const itemText =
+                                            item[0]
+                                            .toLowerCase();
+
+
+                                        return !vegetarianWords.some(
+                                            word =>
+                                                itemText.includes(word)
+                                        );
+
+                                    }
+                                );
+
+
+                            return alternatives.length
+
+                                ? alternatives[
+                                    i %
+                                    alternatives.length
+                                ]
+
+                                : meal;
+
+                        }
+
+
+                        return meal;
+
+                    };
+
+
+                breakfast =
+                    findVegetarianReplacement(
+                        breakfast,
+                        profile.breakfasts
+                    );
+
+
+                lunch =
+                    findVegetarianReplacement(
+                        lunch,
+                        profile.lunches
+                    );
+
+
+                dinner =
+                    findVegetarianReplacement(
+                        dinner,
+                        profile.dinners
+                    );
+
+            }
+
+
+            /*
+             * Avoid foods in snacks too.
+             */
+
+            if (
+                mealContainsAvoidedFood(
+                    snack1,
+                    analysis
+                )
+            ) {
+
+                const replacement =
+                    profile.snacks.find(
+                        item =>
+                            !mealContainsAvoidedFood(
+                                item,
+                                analysis
+                            )
+                    );
+
+
+                if (replacement) {
+                    snack1 = replacement;
+                }
+
+            }
+
+
+            if (
+                mealContainsAvoidedFood(
+                    snack2,
+                    analysis
+                )
+            ) {
+
+                const replacement =
+                    profile.snacks.find(
+                        item =>
+                            !mealContainsAvoidedFood(
+                                item,
+                                analysis
+                            )
+                    );
+
+
+                if (replacement) {
+                    snack2 = replacement;
+                }
+
+            }
+
+
+            week.push({
+
+                day,
+
+                meals: [
+
+                    {
+                        type: "Breakfast",
+
+                        meal:
+                            adjustedMeal(
+                                breakfast,
+                                category,
+                                analysis
+                            )
+
+                    },
+
+                    {
+                        type: "Morning snack",
+
+                        meal:
+                            adjustedMeal(
+                                snack1,
+                                category,
+                                analysis
+                            )
+
+                    },
+
+                    {
+                        type: "Lunch",
+
+                        meal:
+                            adjustedMeal(
+                                lunch,
+                                category,
+                                analysis
+                            )
+
+                    },
+
+                    {
+                        type: "Afternoon snack",
+
+                        meal:
+                            adjustedMeal(
+                                snack2,
+                                category,
+                                analysis
+                            )
+
+                    },
+
+                    {
+                        type: "Dinner",
+
+                        meal:
+                            adjustedMeal(
+                                dinner,
+                                category,
+                                analysis
+                            )
+
+                    }
+
+                ]
+
+            });
+
+        }
+    );
+
+
+    return week;
+
+}
+
+
+/* ============================================================
+   BODY MESSAGE
+   ============================================================ */
+
+function getBodyMessage(
+    category,
+    bmi
+) {
+
+
+    if (
+        category === "Healthy range"
+    ) {
+
+        return `
+
+            <strong>
+                Your BMI sits in the healthy screening range.
+            </strong>
+
+            Nothing about this number needs to become a source of anxiety.
+            The useful part is using your meals to support the way you actually
+            want to feel and function.
+
+        `;
+
+    }
+
+
+    if (
+        category === "Overweight"
+    ) {
+
+        return `
+
+            <strong>
+                Your BMI is above the standard healthy screening range.
+            </strong>
+
+            That is information, not a verdict on your body.
+            The plan below puts more structure around portions and meal choices
+            rather than asking you to eat as little as possible.
+
+        `;
+
+    }
+
+
+    if (
+        category === "Obese"
+    ) {
+
+        return `
+
+            <strong>
+                Your BMI is in the obesity screening range.
+            </strong>
+
+            Treat this as a reason to pay attention, not a reason to panic.
+            Extreme restriction is not the goal here; consistent, practical
+            food choices are more useful.
+
+        `;
+
+    }
+
+
+    return `
+
+        <strong>
+            Your BMI is below the standard healthy screening range.
+        </strong>
+
+        The priority here is not cutting food. Your plan therefore keeps meals
+        substantial and focuses on nutrient-dense foods and adequate energy.
+
+    `;
+
+}
+
+
+/* ============================================================
+   PERSONAL RECOMMENDATIONS
+   ============================================================ */
+
+function generateRecommendations(
+    user,
+    analysis,
+    category
+) {
+
+
+    const recs = [];
+
+
+    if (
+        analysis.allergies.length
+    ) {
+
+        recs.push({
+
+            title:
+                "Allergy filter",
+
+            text:
+                `You mentioned ${analysis.allergies.join(", ")}. Those foods were treated as exclusions rather than optional preferences. Check packaged foods carefully because this planner cannot verify manufacturing cross-contamination.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.avoid.length
+    ) {
+
+        recs.push({
+
+            title:
+                "Foods you avoid",
+
+            text:
+                `You specifically mentioned avoiding ${analysis.avoid.join(", ")}. The planner tries to keep them out rather than simply telling you to "eat around" them.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.goals.includes(
+            "higher protein"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Protein",
+
+            text:
+                `You asked for more protein, so the plan deliberately uses more protein-containing meals rather than relying on a generic "eat more protein" suggestion.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.goals.includes(
+            "strength support"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Strength goal",
+
+            text:
+                `You mentioned strength or muscle work. Keep the protein-containing meals in the timetable rather than replacing them with lighter snack-style meals on active days.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.conditions.includes(
+            "hydration needs attention"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Your hydration issue",
+
+            text:
+                `You said hydration is a problem. Your main weakness isn't knowing that water exists; it's remembering to drink it. Attach water to specific events you already repeat—such as breakfast, lunch and your afternoon snack—so it doesn't rely on memory.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.conditions.includes(
+            "dry skin mentioned"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Dry skin",
+
+            text:
+                `You mentioned dry skin. Rather than adding random supplements, keep fluids consistent and retain foods containing fats such as seeds, nuts where tolerated, avocado or oily fish if they fit your diet.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.conditions.includes(
+            "breathing concern mentioned"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Breathing concern",
+
+            text:
+                `You mentioned a breathing problem. Food planning cannot diagnose or treat that. Avoid making strenuous exercise part of this plan based on this form alone; if the breathing issue is new, worsening or unexplained, get medical advice.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.weaknesses.includes(
+            "limited cooking time"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Your time constraint",
+
+            text:
+                `You said you have limited time to cook. The plan therefore favours meals that can be assembled or cooked quickly. Batch-cook one grain and one protein/legume source rather than trying to prepare five separate dishes every day.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.weaknesses.includes(
+            "frequent takeaway habit"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Takeaway habit",
+
+            text:
+                `You mentioned frequent takeaways. Your useful target isn't "never eat takeaway"; it's having a ready alternative before you're hungry. Keep one cooked grain, one protein source and chopped vegetables available so the decision is easier.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.preferences.includes(
+            "budget-conscious meals"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Budget",
+
+            text:
+                `You mentioned cost. Prioritise lentils, beans, eggs, oats, seasonal vegetables and frozen produce before spending more on specialist health foods.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.preferences.includes(
+            "spicy food"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Your food preference",
+
+            text:
+                `You like spicy food, so there is no reason to make the plan bland. Use chilli, herbs, ginger, garlic and spices to keep the meals interesting without relying on large amounts of oil.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.preferences.includes(
+            "sweet foods"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Sweet tooth",
+
+            text:
+                `You mentioned liking sweet foods. The plan uses fruit and yoghurt-based snacks rather than pretending you will suddenly stop wanting sweet food.`
+
+        });
+
+    }
+
+
+    if (
+        analysis.strengths.includes(
+            "comfortable cooking"
+        )
+    ) {
+
+        recs.push({
+
+            title:
+                "Use your strength",
+
+            text:
+                `You said you are comfortable cooking. Use that to your advantage by preparing two or three components in advance instead of relying on ready-made meals.`
+
+        });
+
+    }
+
+
+    if (
+        category === "Underweight"
+    ) {
+
+        recs.push({
+
+            title:
+                "BMI-specific focus",
+
+            text:
+                `Because your BMI is below the standard screening range, the plan has not been designed around aggressive calorie reduction. If low weight is unintentional or persistent, discuss it with a healthcare professional.`
+
+        });
+
+    }
+
+
+    if (
+        category === "Overweight"
+    ) {
+
+        recs.push({
+
+            title:
+                "BMI-specific focus",
+
+            text:
+                `Because your BMI is above the standard screening range, the portions are slightly more controlled rather than dramatically restricted. The aim is a plan you can repeat rather than a short crash diet.`
+
+        });
+
+    }
+
+
+    if (
+        category === "Obese"
+    ) {
+
+        recs.push({
+
+            title:
+                "BMI-specific focus",
+
+            text:
+                `Because your BMI falls in the obesity screening range, the plan uses modest portion control rather than extreme restriction. If you want substantial weight change, personalised clinical or dietetic support would be more appropriate than relying on BMI alone.`
+
+        });
+
+    }
+
+
+    if (!recs.length) {
+
+        recs.push({
+
+            title:
+                "What stands out",
+
+            text:
+                `You didn't provide a specific limitation in the optional notes, so there isn't enough personal information to invent one. Add concrete details next time—foods you avoid, cooking time, budget, goals or eating habits—and the plan can respond more precisely.`
+
+        });
+
+    }
+
+
+    return recs;
+
+}
+
+
+/* ============================================================
+   RENDER TABLE
+   ============================================================ */
+
+function renderTable(week) {
+
+    const tbody =
+        document.getElementById(
+            "mealTableBody"
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    week.forEach(day => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        const dayCell =
+            document.createElement("td");
+
+
+        dayCell.className =
+            "day-cell";
+
+
+        dayCell.textContent =
+            day.day;
+
+
+        tr.appendChild(dayCell);
+
+
+        day.meals.forEach(item => {
+
+            const td =
+                document.createElement("td");
+
+
+            td.className =
+                "meal-cell";
+
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "meal-card";
+
+
+            const front =
+                document.createElement("div");
+
+
+            front.className =
+                "card-face card-front";
+
+
+            front.innerHTML = `
+
+                <div>
+
+                    <div class="meal-type">
+                        ${escapeHTML(item.type)}
+                    </div>
+
+                    <div class="meal-name">
+                        ${escapeHTML(item.meal[0])}
+                    </div>
+
+                    <div class="meal-description">
+                        ${escapeHTML(item.meal[1])}
+                    </div>
+
+                </div>
+
+                <div class="flip-hint">
+                    Click for portion →
+                </div>
+
+            `;
+
+
+            const back =
+                document.createElement("div");
+
+
+            back.className =
+                "card-face card-back";
+
+
+            back.innerHTML = `
+
+                <div>
+
+                    <div class="portion-title">
+                        Suggested portion
+                    </div>
+
+                    <div class="portion-line">
+                        ${escapeHTML(item.meal[3])}
+                    </div>
+
+                    <div class="calories">
+                        ≈ ${item.meal[2]} kcal
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="recipe-link"
+                    type="button"
+                >
+                    View recipe & detailed portions
+                </button>
+
+            `;
+
+
+            card.appendChild(front);
+
+            card.appendChild(back);
+
+            td.appendChild(card);
+
+
+            td.addEventListener(
+                "click",
+                function(event) {
+
+
+                    if (
+                        event.target.classList.contains(
+                            "recipe-link"
+                        )
+                    ) {
+
+                        event.stopPropagation();
+
+
+                        openRecipe(
+
+                            item.meal,
+
+                            state.user,
+
+                            state.analysis
+
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    td.classList.toggle(
+                        "flipped"
+                    );
+
+                }
+            );
+
+
+            tr.appendChild(td);
+
+        });
+
+
+        tbody.appendChild(tr);
+
+    });
+
+}
+
+
+/* ============================================================
+   HTML ESCAPING
+   ============================================================ */
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ============================================================
+   RECIPE GENERATOR
+   ============================================================ */
+
+function generateRecipe(
+    meal,
+    user,
+    analysis
+) {
+
+
+    const name =
+        meal[0];
+
+
+    const lower =
+        name.toLowerCase();
+
+
+    let ingredients = [];
+
+    let steps = [];
+
+    let time =
+        "20–25 minutes";
+
+
+    if (
+        lower.includes("oats")
+    ) {
+
+        ingredients = [
+
+            [
+                "Oats",
+                "60g"
+            ],
+
+            [
+                "Milk or unsweetened alternative",
+                "200ml"
+            ],
+
+            [
+                "Fruit",
+                "100g"
+            ],
+
+            [
+                "Seeds",
+                "10g"
+            ],
+
+            [
+                "Cinnamon",
+                "1/4 tsp"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Combine the oats and milk in a saucepan.",
+
+            "Cook gently for 5–7 minutes until creamy.",
+
+            "Top with fruit, seeds and cinnamon."
+
+        ];
+
+
+        time =
+            "8 minutes";
+
+    }
+
+
+    else if (
+
+        lower.includes("poha") ||
+
+        lower.includes("upma")
+
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Main grain",
+                "60g dry"
+            ],
+
+            [
+                "Mixed vegetables",
+                "120g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Onion",
+                "50g"
+            ],
+
+            [
+                "Lemon",
+                "1/2"
+            ],
+
+            [
+                "Spices",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Heat the oil in a pan and soften the onion.",
+
+            "Add the vegetables and cook for 4–5 minutes.",
+
+            "Add the main grain and seasoning.",
+
+            "Cook until heated through and finish with lemon."
+
+        ];
+
+
+        time =
+            "15 minutes";
+
+    }
+
+
+    else if (
+
+        lower.includes("chilla") ||
+
+        lower.includes("pancake")
+
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Lentil or chickpea flour",
+                "70g"
+            ],
+
+            [
+                "Mixed vegetables",
+                "100g"
+            ],
+
+            [
+                "Water",
+                "80–100ml"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Spices",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Mix the flour, water, vegetables and seasoning into a pourable batter.",
+
+            "Heat a non-stick pan and use a small amount of oil.",
+
+            "Cook each pancake for 2–3 minutes per side."
+
+        ];
+
+
+        time =
+            "15 minutes";
+
+    }
+
+
+    else if (
+        lower.includes("chicken")
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Chicken breast",
+                "140–150g"
+            ],
+
+            [
+                "Mixed vegetables",
+                "200–250g"
+            ],
+
+            [
+                "Cooked rice or grain",
+                "100–130g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Garlic",
+                "1 clove"
+            ],
+
+            [
+                "Spices / herbs",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Cut the chicken into small pieces and season.",
+
+            "Heat the oil and cook the chicken thoroughly until no pink remains.",
+
+            "Add the vegetables and cook until tender but still crisp.",
+
+            "Serve with the measured cooked rice or grain."
+
+        ];
+
+
+        time =
+            "20 minutes";
+
+    }
+
+
+    else if (
+
+        lower.includes("salmon") ||
+
+        lower.includes("fish") ||
+
+        lower.includes("tuna")
+
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Fish",
+                "120–140g"
+            ],
+
+            [
+                "Cooked rice or grain",
+                "100–130g"
+            ],
+
+            [
+                "Green vegetables",
+                "200g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Lemon",
+                "1/2"
+            ],
+
+            [
+                "Herbs",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Season the fish with lemon and herbs.",
+
+            "Cook in a pan or oven until fully cooked through.",
+
+            "Steam or roast the vegetables.",
+
+            "Serve with the measured grain portion."
+
+        ];
+
+
+        time =
+            "20 minutes";
+
+    }
+
+
+    else if (
+
+        lower.includes("dal") ||
+
+        lower.includes("lentil") ||
+
+        lower.includes("bean") ||
+
+        lower.includes("chickpea") ||
+
+        lower.includes("rajma")
+
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Cooked lentils/beans",
+                "170–200g"
+            ],
+
+            [
+                "Mixed vegetables",
+                "150–200g"
+            ],
+
+            [
+                "Cooked rice/grain",
+                "100–120g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Onion",
+                "50g"
+            ],
+
+            [
+                "Spices",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Cook the onion and spices in the measured oil.",
+
+            "Add the cooked lentils or beans and vegetables.",
+
+            "Simmer for 8–10 minutes.",
+
+            "Serve with the measured rice or grain."
+
+        ];
+
+
+        time =
+            "20 minutes";
+
+    }
+
+
+    else if (
+
+        lower.includes("egg") ||
+
+        lower.includes("omelette") ||
+
+        lower.includes("frittata")
+
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Eggs",
+                "2"
+            ],
+
+            [
+                "Mixed vegetables",
+                "150–200g"
+            ],
+
+            [
+                "Wholegrain bread",
+                "1–2 slices"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Herbs/spices",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Whisk the eggs with seasoning.",
+
+            "Cook the vegetables in a small amount of oil.",
+
+            "Add the eggs and cook until fully set.",
+
+            "Serve with the measured bread portion."
+
+        ];
+
+
+        time =
+            "12 minutes";
+
+    }
+
+
+    else if (
+        lower.includes("tofu")
+    ) {
+
+
+        ingredients = [
+
+            [
+                "Tofu",
+                "150g"
+            ],
+
+            [
+                "Mixed vegetables",
+                "200–250g"
+            ],
+
+            [
+                "Cooked rice or grain",
+                "90–110g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Garlic / ginger",
+                "To taste"
+            ],
+
+            [
+                "Soy sauce or seasoning",
+                "1–2 tsp"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Pat the tofu dry and cut into cubes.",
+
+            "Cook tofu in the measured oil until lightly browned.",
+
+            "Add vegetables, garlic and ginger.",
+
+            "Add seasoning and serve with the measured grain."
+
+        ];
+
+
+        time =
+            "18 minutes";
+
+    }
+
+
+    else {
+
+
+        ingredients = [
+
+            [
+                "Main meal ingredients",
+                "Use the portion shown on the card"
+            ],
+
+            [
+                "Mixed vegetables",
+                "150–250g"
+            ],
+
+            [
+                "Oil",
+                "1 tsp / 5ml"
+            ],
+
+            [
+                "Herbs and spices",
+                "To taste"
+            ]
+
+        ];
+
+
+        steps = [
+
+            "Prepare the main ingredients according to the meal.",
+
+            "Keep added oil measured rather than pouring freely.",
+
+            "Cook vegetables until tender and serve with the stated portion."
+
+        ];
+
+
+        time =
+            "20–25 minutes";
+
+    }
+
+
+    return {
+
+        name,
+
+        subtitle:
+            `${meal[3]} • Approximately ${meal[2]} kcal • ${time}`,
+
+        ingredients,
+
+        steps
+
+    };
+
+}
+
+
+/* ============================================================
+   OPEN RECIPE
+   ============================================================ */
+
+function openRecipe(
+    meal,
+    user,
+    analysis
+) {
+
+
+    const recipe =
+        generateRecipe(
+            meal,
+            user,
+            analysis
+        );
+
+
+    document.getElementById(
+        "recipeTitle"
+    ).textContent =
+        recipe.name;
+
+
+    document.getElementById(
+        "recipeSubtitle"
+    ).textContent =
+        recipe.subtitle;
+
+
+    const ingredients =
+        document.getElementById(
+            "ingredientsList"
+        );
+
+
+    ingredients.innerHTML =
+        "";
+
+
+    recipe.ingredients.forEach(
+        item => {
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "ingredient";
+
+
+            row.innerHTML = `
+
+                <span>
+                    ${escapeHTML(item[0])}
+                </span>
+
+                <strong>
+                    ${escapeHTML(item[1])}
+                </strong>
+
+            `;
+
+
+            ingredients.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    const steps =
+        document.getElementById(
+            "recipeSteps"
+        );
+
+
+    steps.innerHTML =
+        "";
+
+
+    recipe.steps.forEach(
+        step => {
+
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+
+            li.textContent =
+                step;
+
+
+            steps.appendChild(
+                li
+            );
+
+        }
+    );
+
+
+    document
+        .getElementById(
+            "recipeOverlay"
+        )
+        .classList.add(
+            "show"
+        );
+
+}
+
+
+/* ============================================================
+   CLOSE RECIPE
+   ============================================================ */
+
+document
+    .getElementById("closeRecipe")
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "recipeOverlay"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+        }
+    );
+
+
+document
+    .getElementById("recipeOverlay")
+    .addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.id ===
+                "recipeOverlay"
+            ) {
+
+                event.currentTarget
+                    .classList.remove(
+                        "show"
+                    );
+
+            }
+
+        }
+    );
+
+
+/* ============================================================
+   FORM SUBMISSION
+   ============================================================
+
+   IMPORTANT:
+   This is async because the optional notes can be sent
+   to the AI analyser before the timetable is generated.
+   ============================================================ */
+
+document
+    .getElementById("plannerForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+
+            event.preventDefault();
+
+
+            const name =
+                document
+                    .getElementById("name")
+                    .value
+                    .trim();
+
+
+            const age =
+                Number(
+                    document
+                        .getElementById("age")
+                        .value
+                );
+
+
+            const height =
+                Number(
+                    document
+                        .getElementById("height")
+                        .value
+                );
+
+
+            const weight =
+                Number(
+                    document
+                        .getElementById("weight")
+                        .value
+                );
+
+
+            const nationality =
+                document
+                    .getElementById(
+                        "nationality"
+                    )
+                    .value
+                    .trim();
+
+
+            const dietInput =
+                document.querySelector(
+                    "input[name='diet']:checked"
+                );
+
+
+            const diet =
+                dietInput
+                    ? dietInput.value
+                    : "vegetarian";
+
+
+            const notes =
+                document
+                    .getElementById("notes")
+                    .value
+                    .trim();
+
+
+            if (
+                !name ||
+                !age ||
+                !height ||
+                !weight ||
+                !nationality
+            ) {
+
+                alert(
+                    "Please complete all required fields."
+                );
+
+                return;
+
+            }
+
+
+            const bmi =
+                calculateBMI(
+                    height,
+                    weight
+                );
+
+
+            const category =
+                classifyBMI(bmi);
+
+
+            /*
+             * Build user object BEFORE AI analysis
+             * because the AI receives this information.
+             */
+
+            state.user = {
+
+                name,
+
+                age,
+
+                height,
+
+                weight,
+
+                nationality,
+
+                diet,
+
+                notes,
+
+                bmi,
+
+                category
+
+            };
+
+
+            /* Apply BMI colour immediately */
+
+            applyTheme(
+                category
+            );
+
+
+            /*
+             * Tell the user that AI is working.
+             */
+
+            const aiStatus =
+                document.getElementById(
+                    "aiStatus"
+                );
+
+
+            if (notes) {
+
+                aiStatus.className =
+                    "ai-status loading";
+
+
+                aiStatus.textContent =
+                    "Analysing your note and adjusting your plan...";
+
+            }
+
+
+            /*
+             * THIS IS THE IMPORTANT CHANGE:
+             *
+             * The notes are analysed BEFORE generateWeek().
+             * Therefore the resulting analysis directly
+             * affects the timetable.
+             */
+
+            const analysis =
+                notes
+
+                    ? await analyseNotesWithAI(
+                        notes,
+                        state.user
+                    )
+
+                    : analyseNotes("");
+
+
+            state.analysis =
+                analysis;
+
+
+            if (notes) {
+
+                if (
+                    GEMINI_API_KEY.trim()
+                ) {
+
+                    /*
+                     * We attempted the AI route.
+                     * If it failed, analyseNotesWithAI()
+                     * silently falls back to the local analyser.
+                     */
+
+                    aiStatus.className =
+                        "ai-status success";
+
+                    aiStatus.textContent =
+                        "Your note was analysed and used to personalise the timetable.";
+
+                }
+
+                else {
+
+                    aiStatus.className =
+                        "ai-status fallback";
+
+                    aiStatus.textContent =
+                        "AI key not configured — the built-in note analyser was used.";
+
+                }
+
+            }
+
+
+            /*
+             * Food culture.
+             */
+
+            const profile =
+                getFoodProfile(
+                    nationality
+                );
+
+
+            /*
+             * Generate the week USING THE ANALYSED NOTE.
+             */
+
+            state.meals =
+                generateWeek(
+                    profile,
+                    category,
+                    analysis,
+                    diet
+                );
+
+
+            /* ==================================================
+               HEADER
+               ================================================== */
+
+            document.getElementById(
+                "welcome"
+            ).textContent =
+                `Your plan, ${name}.`;
+
+
+            document.getElementById(
+                "introText"
+            ).textContent =
+                `A ${nationality}-inspired week, adjusted around the information you gave us.`;
+
+
+            document.getElementById(
+                "bmiNumber"
+            ).textContent =
+                bmi.toFixed(1);
+
+
+            document.getElementById(
+                "bmiLabel"
+            ).textContent =
+                category;
+
+
+            document.getElementById(
+                "bodyMessage"
+            ).innerHTML =
+                getBodyMessage(
+                    category,
+                    bmi
+                );
+
+
+            /* ==================================================
+               NOTES ANALYSIS DISPLAY
+               ================================================== */
+
+            const tags =
+                document.getElementById(
+                    "analysisTags"
+                );
+
+
+            tags.innerHTML =
+                "";
+
+
+            if (
+                analysis.tags.length
+            ) {
+
+
+                analysis.tags.forEach(
+                    tag => {
+
+
+                        const span =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        span.className =
+                            "analysis-tag";
+
+
+                        span.textContent =
+                            tag;
+
+
+                        tags.appendChild(
+                            span
+                        );
+
+                    }
+                );
+
+            }
+
+            else {
+
+
+                const span =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                span.className =
+                    "analysis-tag";
+
+
+                span.textContent =
+                    "No specific adjustments detected";
+
+
+                tags.appendChild(
+                    span
+                );
+
+            }
+
+
+            /* ==================================================
+               TABLE
+               ================================================== */
+
+            renderTable(
+                state.meals
+            );
+
+
+            /* ==================================================
+               PERSONAL RECOMMENDATIONS
+               ==================================================
+
+               IMPORTANT:
+               This uses the SAME AI/local analysis that
+               changed the timetable.
+               ================================================== */
+
+            const recommendations =
+                generateRecommendations(
+                    state.user,
+                    analysis,
+                    category
+                );
+
+
+            const recommendationBox =
+                document.getElementById(
+                    "recommendations"
+                );
+
+
+            recommendationBox.innerHTML =
+                "";
+
+
+            recommendations.forEach(
+                rec => {
+
+
+                    const article =
+                        document.createElement(
+                            "article"
+                        );
+
+
+                    article.className =
+                        "recommendation";
+
+
+                    article.innerHTML = `
+
+                        <strong>
+                            ${escapeHTML(rec.title)}
+                        </strong>
+
+                        <p>
+                            ${escapeHTML(rec.text)}
+                        </p>
+
+                    `;
+
+
+                    recommendationBox.appendChild(
+                        article
+                    );
+
+                }
+            );
+
+
+            /* ==================================================
+               REVEAL
+               ================================================== */
+
+            document
+                .getElementById("results")
+                .classList.remove(
+                    "hidden"
+                );
+
+
+            document
+                .getElementById("tablePanel")
+                .classList.remove(
+                    "hidden"
+                );
+
+
+            document
+                .getElementById(
+                    "recommendationPanel"
+                )
+                .classList.remove(
+                    "hidden"
+                );
+
+
+            document
+                .getElementById("results")
+                .scrollIntoView({
+
+                    behavior: "smooth",
+
+                    block: "start"
+
+                });
+
+
+        }
+    );
+
+
+/* ============================================================
+   DIET RADIO BUTTON
+   ============================================================
+
+   This does NOT determine the BMI theme.
+
+   The final theme is always determined by BMI after
+   the form is submitted.
+   ============================================================ */
+
+document
+    .querySelectorAll(
+        "input[name='diet']"
+    )
+    .forEach(
+        input => {
+
+
+            input.addEventListener(
+                "change",
+                function() {
+
+
+                    /*
+                     * Do not permanently change the theme
+                     * here. BMI owns the theme.
+                     */
+
+                }
+            );
+
+        }
+    );
+
+
+</script>
+
+
+</body>
+</html>
